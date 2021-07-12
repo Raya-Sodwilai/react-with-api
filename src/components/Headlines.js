@@ -1,39 +1,19 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { makeApiCall } from '../actions/index';
 
 class Headlines extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      error: null,
-      isLoaded: false,
-      headlines: []
-    };
-  }
-
-  makeApiCall = () => {
-    fetch(`https://api.nytimes.com/svc/topstories/v2/home.json?api-key=${process.env.REACT_APP_API_KEY}`)
-      .then(response => response.json())
-      .then(
-        (jsonifiedResponse) => {
-          this.setState({
-            isLoaded: true,
-            headlines: jsonifiedResponse.results
-          });
-        })
-        .catch((error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        });
   }
 
   componentDidMount() {
-    this.makeApiCall()
+    const { dispatch } = this.props;
+    dispatch(makeApiCall());
   }
 
   render() {
-    const { error, isLoaded, headlines } = this.state;
+    const { error, isLoaded, headlines } = this.props;
     if (error) {
       return <React.Fragment>Error: {error.message}</React.Fragment>;
     } else if (!isLoaded) {
@@ -54,5 +34,13 @@ class Headlines extends React.Component {
       );
     }
   }
+}
 
-export default Headlines;
+const mapStateToProps = state => {
+  return {
+    headline: state.headlines,
+    isLoading: state.isLoading,
+    error: state.error
+  }
+}
+export default connect(mapStateToProps)(Headlines);
